@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useEventPermissions } from '@/core/hooks';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Input, Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/ui';
 import { cn, formatDate, formatDateTime } from '@/core/utils';
+import { UserCheck, Calendar, Plus, Search, Filter, Clock, UserPlus, Mail, Phone, CheckCircle, XCircle, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const mockShifts = [
   { id: '1', role: 'Audio/Visual', event: 'Sunday Service', date: '2024-01-14', time: '8:00 AM - 11:00 AM', volunteers: ['Mike Chen', 'Sarah Kim'], needed: 3, status: 'open' },

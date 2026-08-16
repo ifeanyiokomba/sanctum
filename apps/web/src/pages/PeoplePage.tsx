@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePeoplePermissions } from '@/core/hooks';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Avatar, AvatarFallback, AvatarImage } from '@/core/ui';
 import { cn, formatDate } from '@/core/utils';
+import { Plus, Search, Filter, MoreVertical, Mail, Phone, MapPin, UserPlus, Download, Upload, Eye, Edit, Trash2, Users } from 'lucide-react';
 
 const mockPeople = [
   { id: '1', firstName: 'John', lastName: 'Smith', email: 'john@example.com', phone: '(555) 123-4567', status: 'active', household: 'Smith Family', tags: ['Member', 'Volunteer'], role: 'head', avatar: null },
@@ -74,12 +75,8 @@ export function PeoplePage() {
                       {person.phone && <span className="flex items-center gap-1 text-sm text-muted-foreground"><Phone className="h-3.5 w-3.5" />{person.phone}</span>}
                     </div>
                   </td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-sm">{person.household}</span></div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-wrap gap-1">{person.tags.map((tag) => <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>)}</div>
-                  </td>
+                  <td className="px-4 py-4"><div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-sm">{person.household}</span></div></td>
+                  <td className="px-4 py-4"><div className="flex flex-wrap gap-1">{person.tags.map((tag) => <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>)}</div></td>
                   <td className="px-4 py-4"><Badge variant={person.status === 'active' ? 'success' : 'secondary'}>{person.status}</Badge></td>
                   <td className="px-4 py-4 text-right">
                     <DropdownMenu>

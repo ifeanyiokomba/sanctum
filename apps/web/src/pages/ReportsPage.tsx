@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Input } from '@/core/ui';
-import { BarChart3, Download, Plus, Search, Filter, Calendar, TrendingUp, Users, DollarSign, FileText, Settings, ChevronLeft, ChevronRight, UserPlus, UserCheck } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/core/utils';
+import { Download, Plus, Filter, Users, DollarSign, FileText, UserPlus, UserCheck, BarChart3, Search, Calendar, TrendingUp, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const mockReports = [
   { id: '1', name: 'Weekly Attendance', type: 'Attendance', lastRun: '2024-01-12', schedule: 'Weekly', format: 'PDF' },

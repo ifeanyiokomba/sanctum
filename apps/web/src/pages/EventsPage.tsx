@@ -50,12 +50,14 @@ export function EventsPage() {
                 <div key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border rounded-lg hover:bg-muted/50">
                   <div className="flex items-center gap-4">
                     <div className="p-3 rounded-lg bg-primary/10"><Calendar className="h-6 w-6 text-primary" /></div>
-                    <div><h3 className="font-medium">{event.title}</h3>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-1">
-                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formatDateTime(event.startAt)}</span>
-                      <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.location}</span>
-                      <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{event.registrations}/{event.capacity}</span>
-                    </div></div>
+                    <div>
+                      <h3 className="font-medium">{event.title}</h3>
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-1">
+                        <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formatDateTime(event.startAt)}</span>
+                        <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.location}</span>
+                        <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{event.registrations}/{event.capacity}</span>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant={event.status === 'upcoming' ? 'success' : 'secondary'}>{event.status}</Badge>

@@ -1,14 +1,14 @@
 'use client';
 
 import { usePlatformAuth } from '@/core/hooks';
-import { Bell, Search, Sun, Moon, ChevronDown, Globe, Settings, Heart, UserCheck, Calendar, Wifi, WifiOff } from 'lucide-react';
+import { Bell, Search, Sun, Moon, ChevronDown, Globe, Settings, Heart, UserCheck, Calendar } from 'lucide-react';
 import { cn } from '@/core/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/core/ui';
 import { useState, useEffect } from 'react';
 import { Toaster } from '@/core/ui';
 
 export function Header() {
-  const { user, organization, getOrgPersona, isOrgAdmin, isSuperAdmin } = usePlatformAuth();
+  const { user, getOrgPersona, isOrgAdmin, isSuperAdmin } = usePlatformAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isOnline, setIsOnline] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');

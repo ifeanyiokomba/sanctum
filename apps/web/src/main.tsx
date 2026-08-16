@@ -23,7 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ClerkProvider
-        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''}
+        publishableKey={'' || ''}
         afterSignInUrl="/dashboard"
         afterSignUpUrl="/onboarding"
       >

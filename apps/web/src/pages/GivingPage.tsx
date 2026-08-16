@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTransactionPermissions, useFundPermissions } from '@/core/hooks';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/ui';
 import { cn, formatCurrency, formatDate } from '@/core/utils';
+import { DollarSign, Heart, TrendingUp, Download, Plus, Filter, Search, CreditCard, Banknote, Recycle } from 'lucide-react';
 
 const mockTransactions = [
   { id: '1', date: '2024-01-10', type: 'income', amount: 50000, fund: 'General Fund', donor: 'John Smith', method: 'Online', status: 'completed' },

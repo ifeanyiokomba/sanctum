@@ -100,7 +100,7 @@ const ToastDescription = React.forwardRef<
 ToastDescription.displayName = ToastPrimitives.Description.displayName;
 
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
-type ToastActionElement = React.ReactElement<typeof ToastAction>;
+
 
 // Toast hook and context
 import { createContext, useContext, useState, useCallback } from 'react';

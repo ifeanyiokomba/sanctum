@@ -1,6 +1,6 @@
 import { getToken } from '@clerk/clerk-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = '/api' || '/api';
 
 class ApiClient {
   private baseUrl: string;
