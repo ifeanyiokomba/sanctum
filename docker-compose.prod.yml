@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # CouchDB Database
+  couchdb:
+    image: couchdb:3
+    container_name: sanctum-couchdb
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD:-changeme}
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+    ports:
+      - "5984:5984"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5984/_up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sanctum-network
+
+  # Sync Gateway (for mobile/offline sync)
+  sync-gateway:
+    image: couchbase/sync-gateway:3
+    container_name: sanctum-sync-gateway
+    ports:
+      - "4984:4984"
+      - "4985:4985"
+    volumes:
+      - ./sync-gateway-config.json:/etc/sync-gateway/config.json:ro
+    environment:
+      GOMAXPROCS: "2"
+    depends_on:
+      couchdb:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sanctum-network
+
+  # Web App (served via nginx)
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: sanctum-web
+    ports:
+      - "3000:80"
+    depends_on:
+      - couchdb
+    restart: unless-stopped
+    networks:
+      - sanctum-network
+    environment:
+      - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
+      - VITE_APP_URL=${VITE_APP_URL}
+
+volumes:
+  couchdb_data:
+
+networks:
+  sanctum-network:
+    driver: bridge
