@@ -5,6 +5,36 @@ import { usePlatformAuth } from '@/core/hooks';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Label, Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/ui';
 import { Building2, Users, Zap, Globe, Shield, Palette, Settings, Save, Settings as SettingsIcon } from 'lucide-react';
 
+const featureFlags = [
+  { label: 'Giving & Donations', defaultChecked: true },
+  { label: 'Child Check-in', defaultChecked: true },
+  { label: 'Groups & Ministries', defaultChecked: true },
+  { label: 'Volunteer Management', defaultChecked: true },
+  { label: 'Events & Calendar', defaultChecked: true },
+  { label: 'Grades & Attendance', defaultChecked: false },
+  { label: 'Inventory', defaultChecked: false },
+  { label: 'Projects & Grants', defaultChecked: false },
+];
+
+const integrations = [
+  { name: 'Stripe', category: 'Payments' },
+  { name: 'Twilio', category: 'SMS' },
+  { name: 'SendGrid', category: 'Email' },
+  { name: 'QuickBooks', category: 'Accounting' },
+  { name: 'Planning Center', category: 'Church Mgmt' },
+  { name: 'Google Workspace', category: 'Productivity' },
+];
+
+const complianceSettings = [
+  { label: 'Child Safety', desc: 'Background checks, secure check-in, abuse prevention' },
+  { label: 'PCI DSS', desc: 'Payment card data security standards' },
+  { label: 'FERPA', desc: 'Student privacy and education records' },
+  { label: 'COPPA', desc: "Children's online privacy protection" },
+  { label: 'GAAP/FASB', desc: 'Fund accounting and financial reporting' },
+  { label: 'SOX', desc: 'Financial controls and audit trails' },
+  { label: 'HIPAA', desc: 'Health information privacy' },
+];
+
 export function SettingsPage() {
   const { organization, isOrgAdmin, isSuperAdmin } = usePlatformAuth();
   const [activeTab, setActiveTab] = useState('general');
@@ -14,33 +44,202 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6 animate-in max-w-4xl">
-      <div className="flex items-center justify-between"><div><h1 className="text-3xl font-bold tracking-tight">Settings</h1><p className="text-muted-foreground">Manage your organization settings and preferences</p></div>{canUpdate && <Button onClick={handleSave} disabled={saving}><Save className="h-4 w-4 mr-2" />{saving ? 'Saving...' : 'Save Changes'}</Button>}</div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">Manage your organization settings and preferences</p>
+        </div>
+        <Button onClick={handleSave} disabled={saving}>
+          <Save className="h-4 w-4 mr-2" />
+          {saving ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7"><TabsTrigger value="general"><Building2 className="h-4 w-4 mr-2" />General</TabsTrigger><TabsTrigger value="people"><Users className="h-4 w-4 mr-2" />People</TabsTrigger><TabsTrigger value="features"><Zap className="h-4 w-4 mr-2" />Features</TabsTrigger><TabsTrigger value="integrations"><Globe className="h-4 w-4 mr-2" />Integrations</TabsTrigger><TabsTrigger value="compliance"><Shield className="h-4 w-4 mr-2" />Compliance</TabsTrigger><TabsTrigger value="branding"><Palette className="h-4 w-4 mr-2" />Branding</TabsTrigger><TabsTrigger value="advanced"><SettingsIcon className="h-4 w-4 mr-2" />Advanced</TabsTrigger></TabsList>
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="general"><Building2 className="h-4 w-4 mr-2" />General</TabsTrigger>
+          <TabsTrigger value="people"><Users className="h-4 w-4 mr-2" />People</TabsTrigger>
+          <TabsTrigger value="features"><Zap className="h-4 w-4 mr-2" />Features</TabsTrigger>
+          <TabsTrigger value="integrations"><Globe className="h-4 w-4 mr-2" />Integrations</TabsTrigger>
+          <TabsTrigger value="compliance"><Shield className="h-4 w-4 mr-2" />Compliance</TabsTrigger>
+          <TabsTrigger value="branding"><Palette className="h-4 w-4 mr-2" />Branding</TabsTrigger>
+          <TabsTrigger value="advanced"><SettingsIcon className="h-4 w-4 mr-2" />Advanced</TabsTrigger>
+        </TabsList>
 
         <TabsContent value="general" className="mt-6 space-y-6">
-          <Card><CardHeader><CardTitle>Organization Information</CardTitle></CardHeader><CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label htmlFor="orgName">Organization Name</Label><Input id="orgName" defaultValue={organization?.name} /></div><div className="space-y-2"><Label htmlFor="orgSlug">Slug</Label><Input id="orgSlug" defaultValue={organization?.slug} disabled /></div></div>
-            <div className="space-y-2"><Label htmlFor="orgAddress">Address</Label><Input id="orgAddress" placeholder="123 Main St, City, State 12345" /></div>
-            <div className="space-y-2"><Label htmlFor="orgPhone">Phone</Label><Input id="orgPhone" type="tel" placeholder="(555) 123-4567" /></div>
-            <div className="space-y-2"><Label htmlFor="orgEmail">Email</Label><Input id="orgEmail" type="email" placeholder="info@organization.org" /></div>
-            <div className="space-y-2"><Label htmlFor="orgWebsite">Website</Label><Input id="orgWebsite" type="url" placeholder="https://organization.org" /></div>
-          </CardContent></Card>
-          <Card><CardHeader><CardTitle>Persona & Mode</CardTitle></CardHeader><CardContent><div className="space-y-2"><Label>Current Mode</Label><div className="flex flex-wrap gap-2">{['church', 'school', 'ngo', 'sme'].map((p) => (<Button key={p} variant="outline" onClick={() => {}} disabled>{p.charAt(0).toUpperCase() + p.slice(1)}</Button>))}</div><p className="text-sm text-muted-foreground">Changing persona will update vocabulary, default modules, and compliance settings.</p></div></CardContent></Card>
+          <Card>
+            <CardHeader><CardTitle>Organization Information</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2"><Label htmlFor="orgName">Organization Name</Label><Input id="orgName" defaultValue={organization?.name} /></div>
+                <div className="space-y-2"><Label htmlFor="orgSlug">Slug</Label><Input id="orgSlug" defaultValue={organization?.slug} disabled /></div>
+              </div>
+              <div className="space-y-2"><Label htmlFor="orgAddress">Address</Label><Input id="orgAddress" placeholder="123 Main St, City, State 12345" /></div>
+              <div className="space-y-2"><Label htmlFor="orgPhone">Phone</Label><Input id="orgPhone" type="tel" placeholder="(555) 123-4567" /></div>
+              <div className="space-y-2"><Label htmlFor="orgEmail">Email</Label><Input id="orgEmail" type="email" placeholder="info@organization.org" /></div>
+              <div className="space-y-2"><Label htmlFor="orgWebsite">Website</Label><Input id="orgWebsite" type="url" placeholder="https://organization.org" /></div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Persona & Mode</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label>Current Mode</Label>
+                <div className="flex flex-wrap gap-2">
+                  {['church', 'school', 'ngo', 'sme'].map((p) => (
+                    <Button key={p} variant="outline" onClick={() => {}} disabled>
+                      {p.charAt(0).toUpperCase() + p.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground">Changing persona will update vocabulary, default modules, and compliance settings.</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="people" className="mt-6 space-y-6"><Card><CardHeader><CardTitle>Vocabulary Customization</CardTitle></CardHeader><CardContent className="space-y-4"><p className="text-muted-foreground">Customize terminology for your organization type.</p><div className="grid gap-4 md:grid-cols-2">{['Person', 'Household', 'Transaction', 'Group', 'Event'].map((label) => (<div key={label} className="space-y-2"><Label htmlFor={label.toLowerCase()}>{label} Label</Label><Input id={label.toLowerCase()} defaultValue={label} /></div>))}</div></CardContent></Card></TabsContent>
+        <TabsContent value="people" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Vocabulary Customization</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">Customize terminology for your organization type.</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                {['Person', 'Household', 'Transaction', 'Group', 'Event'].map((label) => (
+                  <div key={label} className="space-y-2">
+                    <Label htmlFor={label.toLowerCase()}>{label} Label</Label>
+                    <Input id={label.toLowerCase()} defaultValue={label} />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <TabsContent value="features" className="mt-6 space-y-6"><Card><CardHeader><CardTitle>Feature Flags</CardTitle></CardHeader><CardContent className="space-y-4">[ 'Giving & Donations', 'Child Check-in', 'Groups & Ministries', 'Volunteer Management', 'Events & Calendar', 'Grades & Attendance', 'Inventory', 'Projects & Grants' ].map((label) => (<div key={label} className="flex items-center justify-between p-4 border rounded-lg"><div className="flex-1"><p className="font-medium">{label}</p></div><input type="checkbox" defaultChecked className="h-4 w-4" />))}</CardContent></Card></TabsContent>
+        <TabsContent value="features" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Feature Flags</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              {featureFlags.map(({ label, defaultChecked }) => (
+                <div key={label} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium">{label}</p>
+                  </div>
+                  <input type="checkbox" defaultChecked={defaultChecked} className="h-4 w-4" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <TabsContent value="integrations" className="mt-6 space-y-6"><Card><CardHeader><CardTitle>Connected Integrations</CardTitle></CardHeader><CardContent className="space-y-4">[ { name: 'Stripe', category: 'Payments' }, { name: 'Twilio', category: 'SMS' }, { name: 'SendGrid', category: 'Email' }, { name: 'QuickBooks', category: 'Accounting' }, { name: 'Planning Center', category: 'Church Mgmt' }, { name: 'Google Workspace', category: 'Productivity' } ].map(({ name, category }) => (<div key={name} className="flex items-center justify-between p-4 border rounded-lg"><div className="flex items-center gap-4"><div className="p-2 rounded-lg bg-primary/10">{name.charAt(0)}</div><div><p className="font-medium">{name}</p><p className="text-sm text-muted-foreground">{category}</p></div></div><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Connected</span></div>))}</CardContent></Card></TabsContent>
+        <TabsContent value="integrations" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Connected Integrations</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              {integrations.map(({ name, category }) => (
+                <div key={name} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 rounded-lg bg-primary/10">{name.charAt(0)}</div>
+                    <div>
+                      <p className="font-medium">{name}</p>
+                      <p className="text-sm text-muted-foreground">{category}</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Connected</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <TabsContent value="compliance" className="mt-6 space-y-6"><Card><CardHeader><CardTitle>Compliance Settings</CardTitle></CardHeader><CardContent className="space-y-4">[ { label: 'Child Safety', desc: 'Background checks, secure check-in, abuse prevention' }, { label: 'PCI DSS', desc: 'Payment card data security standards' }, { label: 'FERPA', desc: 'Student privacy and education records' }, { label: 'COPPA', desc: "Children's online privacy protection" }, { label: 'GAAP/FASB', desc: 'Fund accounting and financial reporting' }, { label: 'SOX', desc: 'Financial controls and audit trails' }, { label: 'HIPAA', desc: 'Health information privacy' } ].map(({ label, desc }) => (<div key={label} className="flex items-center justify-between p-4 border rounded-lg"><div className="flex-1"><p className="font-medium">{label}</p><p className="text-sm text-muted-foreground">{desc}</p></div><input type="checkbox" className="h-4 w-4" />))}</CardContent></Card></TabsContent>
+        <TabsContent value="compliance" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Compliance Settings</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              {complianceSettings.map(({ label, desc }) => (
+                <div key={label} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium">{label}</p>
+                    <p className="text-sm text-muted-foreground">{desc}</p>
+                  </div>
+                  <input type="checkbox" className="h-4 w-4" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <TabsContent value="branding" className="mt-6 space-y-6"><Card><CardHeader><CardTitle>Branding & Appearance</CardTitle></CardHeader><CardContent className="space-y-6"><div><Label>Logo</Label><div className="flex items-center gap-4 mt-2"><div className="h-20 w-20 border rounded-lg bg-muted flex items-center justify-center">Logo</div><Button variant="outline">Upload Logo</Button></div></div><div><Label>Favicon</Label><div className="flex items-center gap-4 mt-2"><div className="h-12 w-12 border rounded-lg bg-muted flex items-center justify-center">Favicon</div><Button variant="outline">Upload Favicon</Button></div></div><div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label>Primary Color</Label><Input type="color" defaultValue="#2563eb" /></div><div className="space-y-2"><Label>Secondary Color</Label><Input type="color" defaultValue="#64748b" /></div></div></CardContent></Card></TabsContent>
+        <TabsContent value="branding" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Branding & Appearance</CardTitle></CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label>Logo</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="h-20 w-20 border rounded-lg bg-muted flex items-center justify-center">Logo</div>
+                  <Button variant="outline">Upload Logo</Button>
+                </div>
+              </div>
+              <div>
+                <Label>Favicon</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="h-12 w-12 border rounded-lg bg-muted flex items-center justify-center">Favicon</div>
+                  <Button variant="outline">Upload Favicon</Button>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2"><Label>Primary Color</Label><Input type="color" defaultValue="#2563eb" /></div>
+                <div className="space-y-2"><Label>Secondary Color</Label><Input type="color" defaultValue="#64748b" /></div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <TabsContent value="advanced" className="mt-6 space-y-6"><Card><CardHeader><CardTitle>Advanced Settings</CardTitle></CardHeader><CardContent className="space-y-4"><div className="flex items-center justify-between p-4 border rounded-lg"><div><p className="font-medium">Data Residency</p><p className="text-sm text-muted-foreground">Choose where your data is stored</p></div><select className="border rounded-lg px-3 py-2"><option>US East (Virginia)</option><option>US West (Oregon)</option><option>EU (Frankfurt)</option><option>EU (Ireland)</option></select></div><div className="flex items-center justify-between p-4 border rounded-lg"><div><p className="font-medium">Session Timeout</p><p className="text-sm text-muted-foreground">Auto-logout after inactivity</p></div><select className="border rounded-lg px-3 py-2"><option>30 minutes</option><option>1 hour</option><option>4 hours</option><option>8 hours</option><option>Never</option></select></div><div className="flex items-center justify-between p-4 border rounded-lg"><div><p className="font-medium">Two-Factor Authentication</p><p className="text-sm text-muted-foreground">Require 2FA for all users</p></div><input type="checkbox" defaultChecked className="h-4 w-4" /></div><div className="flex items-center justify-between p-4 border rounded-lg bg-destructive/10"><div><p className="font-medium text-destructive">Delete Organization</p><p className="text-sm text-muted-foreground">Permanently delete all data</p></div><Button variant="destructive" disabled={!isSuperAdmin}>Delete</Button></div></CardContent></Card></TabsContent>
+        <TabsContent value="advanced" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Advanced Settings</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">Data Residency</p>
+                  <p className="text-sm text-muted-foreground">Choose where your data is stored</p>
+                </div>
+                <select className="border rounded-lg px-3 py-2">
+                  <option>US East (Virginia)</option>
+                  <option>US West (Oregon)</option>
+                  <option>EU (Frankfurt)</option>
+                  <option>EU (Ireland)</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">Session Timeout</p>
+                  <p className="text-sm text-muted-foreground">Auto-logout after inactivity</p>
+                </div>
+                <select className="border rounded-lg px-3 py-2">
+                  <option>30 minutes</option>
+                  <option>1 hour</option>
+                  <option>4 hours</option>
+                  <option>8 hours</option>
+                  <option>Never</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">Two-Factor Authentication</p>
+                  <p className="text-sm text-muted-foreground">Require 2FA for all users</p>
+                </div>
+                <input type="checkbox" defaultChecked className="h-4 w-4" />
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-destructive/10">
+                <div>
+                  <p className="font-medium text-destructive">Delete Organization</p>
+                  <p className="text-sm text-muted-foreground">Permanently delete all data</p>
+                </div>
+                <Button variant="destructive" disabled={!isSuperAdmin}>Delete</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );

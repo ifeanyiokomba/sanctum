@@ -120,7 +120,7 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           clerk: ['@clerk/clerk-react'],
           tanstack: ['@tanstack/react-query'],
-          rxdb: ['rxdb', 'rxdb-replication-couchdb'],
+          rxdb: ['rxdb'],
           ui: ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority']
         }
       }

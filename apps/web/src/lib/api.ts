@@ -1,6 +1,4 @@
-import { getToken } from '@clerk/clerk-react';
-
-const API_BASE = '/api' || '/api';
+const API_BASE = '/api';
 
 class ApiClient {
   private baseUrl: string;
@@ -10,11 +8,15 @@ class ApiClient {
   }
 
   private async getHeaders(): Promise<HeadersInit> {
-    const token = await getToken();
-    return {
+    // TODO: implement getToken from Clerk
+    const token = "";
+    const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
     };
+    if (token) {
+      (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    }
+    return headers;
   }
 
   private async request<T>(
@@ -199,12 +201,15 @@ class ApiClient {
     formData.append('file', file);
     formData.append('type', type);
 
-    const token = await getToken();
+    // TODO: implement getToken from Clerk
+    const token = "";
+    const headers: HeadersInit = {};
+    if (token) {
+      (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    }
     const response = await fetch(`${this.baseUrl}/files`, {
       method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers,
       body: formData,
     });
 

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Person, Transaction, Event, EventRegistration, Message, Template, Workflow, Report, Fund, Household } from '@platform/core-db';
+import { Person, Transaction, Event, EventRegistration, Message, Template, Workflow, Report, Fund, Household } from '@/core/db';
 
 // UI State
 interface UIState {
@@ -45,7 +45,7 @@ interface DataState {
   templates: Template[];
   workflows: Workflow[];
   reports: Report[];
-  
+
   // Optimistic mutations
   addPerson: (person: Person) => void;
   updatePerson: (id: string, data: Partial<Person>) => void;

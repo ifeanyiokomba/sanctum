@@ -33,11 +33,11 @@ export function Dashboard() {
             Welcome back, {user?.firstName || 'there'}! Here's what's happening at {organization?.name}.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary">
-            {getOrgPersona()?.charAt(0).toUpperCase() + getOrgPersona()?.slice(1)} Mode
-          </span>
-        </div>
+<div className="flex items-center gap-2">
+              <span className="px-2 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary">
+                {(getOrgPersona() ?? '').charAt(0).toUpperCase() + (getOrgPersona() ?? '').slice(1)} Mode
+              </span>
+            </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
