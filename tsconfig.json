@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@platform/core/*": ["packages/core/*/src"],
+      "@platform/verticals/*": ["packages/verticals/*/src"],
+      "@platform/platform/*": ["packages/platform/*/src"],
+      "@platform/ui": ["packages/core/ui/src"],
+      "@platform/auth": ["packages/core/auth/src"],
+      "@platform/db": ["packages/core/db/src"],
+      "@platform/sync": ["packages/core/sync/src"],
+      "@platform/workflow": ["packages/core/workflow/src"],
+      "@platform/comms": ["packages/core/comms/src"],
+      "@platform/reporting": ["packages/core/reporting/src"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", ".turbo"]
+}

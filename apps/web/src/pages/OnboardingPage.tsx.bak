@@ -1,0 +1,63 @@
+'use client';
+
+import { useState } from 'react';
+import { usePlatformAuth } from '../core/hooks';
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, Tabs, TabsList, TabsTrigger, TabsContent } from '../core/ui';
+import { ArrowRight, ArrowLeft, CheckCircle, Building2, Users, Heart, BookOpen, Briefcase } from 'lucide-react';
+import { cn } from '../core/utils';
+
+const PERSONAS = [
+  { id: 'church', name: 'Church', icon: Building2, description: 'Manage members, giving, check-in, volunteers, and ministries', color: 'text-blue-600', bg: 'bg-blue-100' },
+  { id: 'school', name: 'School', icon: Users, description: 'Student records, grades, attendance, parent portal, fees', color: 'text-green-600', bg: 'bg-green-100' },
+  { id: 'ngo', name: 'Nonprofit', icon: Heart, description: 'Donor management, fundraising, grants, programs, outcomes', color: 'text-red-600', bg: 'bg-red-100' },
+  { id: 'sme', name: 'Business', icon: Briefcase, description: 'Finance, inventory, sales, projects, HR, e-invoicing', color: 'text-purple-600', bg: 'bg-purple-100' }
+];
+
+const ONBOARDING_STEPS = [
+  { id: 'welcome', title: 'Welcome', description: 'Get to know Sanctum' },
+  { id: 'persona', title: 'Organization Type', description: 'Select your organization type' },
+  { id: 'details', title: 'Details', description: 'Enter organization information' },
+  { id: 'features', title: 'Features', description: 'Choose modules to enable' },
+  { id: 'integrations', title: 'Integrations', description: 'Connect your tools' },
+  { id: 'complete', title: 'Complete', description: 'You\'re all set!' }
+];
+
+export function OnboardingPage() {
+  const { user, organization } = usePlatformAuth();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedPersona, setSelectedPersona] = useState<'church' | 'school' | 'ngo' | 'sme'>('church');
+  const [orgName, setOrgName] = useState('');
+  const [orgSlug, setOrgSlug] = useState('');
+  const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
+
+  const step = ONBOARDING_STEPS[currentStep];
+  const isFirst = currentStep === 0;
+  const isLast = currentStep === ONBOARDING_STEPS.length - 1;
+
+  const goNext = () => { if (currentStep < ONBOARDING_STEPS.length - 1) { setCurrentStep(currentStep + 1); } };
+  const goBack = () => { if (currentStep > 0) { setCurrentStep(currentStep - 1); } };
+
+  const handlePersonaSelect = (persona: typeof selectedPersona) => { setSelectedPersona(persona); const defaults: Record<string, string[]> = { church: ['giving', 'checkin', 'groups', 'volunteers', 'events'], school: ['grades', 'attendance', 'events', 'fees'], ngo: ['giving', 'grants', 'volunteers', 'events', 'outcomes'], sme: ['finance', 'inventory', 'sales', 'projects'] }; setEnabledFeatures(defaults[persona] || []); };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/50 flex items-center justify-center p-4">
+      <div className="w-full max-w-3xl bg-card rounded-2xl border shadow-xl overflow-hidden">
+        <div className="px-6 py-4 border-b bg-muted/50"><div className="flex items-center justify-between mb-4"><div><h1 className="text-xl font-bold">Setup Wizard</h1><p className="text-sm text-muted-foreground">{step.title} - {step.description}</p></div><div className="hidden sm:flex items-center gap-2">{ONBOARDING_STEPS.map((s, i) => (<div key={s.id} className="flex items-center gap-1"><div className={cn('w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all', i < currentStep ? 'bg-primary text-primary-foreground' : i === currentStep ? 'bg-primary/20 text-primary border-2 border-primary' : 'bg-muted text-muted-foreground')}>{i < currentStep ? <CheckCircle className="h-5 w-5" /> : i + 1}</div>{i < ONBOARDING_STEPS.length - 1 && <div className={cn('h-1 w-12', i < currentStep ? 'bg-primary' : 'bg-muted')} />})</div>)}</div></div><div className="h-2 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary transition-all duration-300" style={{ width: `${((currentStep) / (ONBOARDING_STEPS.length - 1)) * 100}%` }} /></div></div>
+
+        <div className="p-6 space-y-6">
+          {currentStep === 0 && (<div className="text-center space-y-6"><div className="mx-auto w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center"><Building2 className="h-10 w-10 text-primary" /></div><h2 className="text-2xl font-bold">Welcome to Sanctum</h2><p className="text-muted-foreground max-w-md mx-auto">The unified operating platform for mission-driven organizations. Let's get you set up in just a few minutes.</p><div className="grid gap-4 sm:grid-cols-2 mt-8">{PERSONAS.map((p) => (<div key={p.id} className={cn('p-4 rounded-xl border-2 transition-all cursor-pointer', selectedPersona === p.id ? 'border-primary bg-primary/5' : 'border-transparent hover:border-muted')} onClick={() => { handlePersonaSelect(p.id); goNext(); }}><div className={cn('p-2 rounded-lg', p.bg)}><p.icon className={cn('h-6 w-6', p.color)} /></div><h3 className="font-medium mt-2">{p.name}</h3><p className="text-sm text-muted-foreground mt-1">{p.description}</p></div>))}</div>)}
+
+          {currentStep === 2 && (<div className="space-y-6"><h2 className="text-2xl font-bold">Organization Details</h2><div className="space-y-4"><div className="space-y-2"><Label htmlFor="orgName">Organization Name</Label><Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="e.g., Grace Community Church" autoFocus /></div><div className="space-y-2"><Label htmlFor="orgSlug">URL Slug</Label><Input id="orgSlug" value={orgSlug} onChange={(e) => setOrgSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))} placeholder="grace-community-church" /><p className="text-sm text-muted-foreground">Your platform URL: <code>sanctum.app/{orgSlug}</code></p></div><div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label htmlFor="firstName">Your First Name</Label><Input id="firstName" defaultValue={user?.firstName} /></div><div className="space-y-2"><Label htmlFor="lastName">Your Last Name</Label><Input id="lastName" defaultValue={user?.lastName} /></div></div><div className="space-y-2"><Label htmlFor="email">Your Email</Label><Input id="email" type="email" defaultValue={user?.email} disabled /></div></div>)}
+
+          {currentStep === 3 && (<div className="space-y-6"><h2 className="text-2xl font-bold">Enable Features</h2><p className="text-muted-foreground">Select the modules you want to start with. You can always add more later.</p><div className="grid gap-4">[ { id: 'giving', name: 'Giving & Donations', desc: 'Online giving, text-to-give, recurring gifts, fund accounting', icon: Heart, default: true }, { id: 'checkin', name: 'Child Check-in', desc: 'Secure check-in, label printing, SMS alerts, allergy tracking', icon: UserCheck, default: selectedPersona === 'church' }, { id: 'groups', name: 'Groups & Ministries', desc: 'Small groups, attendance tracking, communication', icon: Users, default: true }, { id: 'volunteers', name: 'Volunteer Management', desc: 'Scheduling, shift reminders, mobile check-in', icon: Users, default: true }, { id: 'events', name: 'Events & Calendar', desc: 'Registrations, recurring events, waitlists, reminders', icon: BookOpen, default: true }, { id: 'grades', name: 'Grades & Attendance', desc: 'Gradebook, report cards, standards-based grading', icon: BookOpen, default: selectedPersona === 'school' }, { id: 'inventory', name: 'Inventory', desc: 'Products, stock levels, purchase orders, alerts', icon: Briefcase, default: selectedPersona === 'sme' }, { id: 'projects', name: 'Projects & Grants', desc: 'Grant tracking, budget vs actual, outcome metrics', icon: BookOpen, default: selectedPersona === 'ngo' } ].map((feature) => (<div key={feature.id} className={cn('flex items-center gap-4 p-4 border rounded-xl transition-all cursor-pointer', enabledFeatures.includes(feature.id) ? 'border-primary bg-primary/5' : 'hover:border-muted')} onClick={() => setEnabledFeatures(prev => prev.includes(feature.id) ? prev.filter(f => f !== feature.id) : [...prev, feature.id])}><div className={cn('w-10 h-10 rounded-lg flex items-center justify-center', enabledFeatures.includes(feature.id) ? 'bg-primary text-primary-foreground' : 'bg-muted')}<feature.icon className={cn('h-5 w-5', enabledFeatures.includes(feature.id) ? 'text-white' : 'text-muted-foreground')} /></div><div className="flex-1"><div className="flex items-center gap-2"><h3 className="font-medium">{feature.name}</h3>{feature.default && <Badge variant="secondary" className="text-xs">Default</Badge>}</div><p className="text-sm text-muted-foreground">{feature.desc}</p></div><input type="checkbox" checked={enabledFeatures.includes(feature.id)} onChange={() => {}} className="sr-only" /></div>))}</div>)}
+
+          {currentStep === 4 && (<div className="space-y-6"><h2 className="text-2xl font-bold">Connect Integrations</h2><p className="text-muted-foreground">Connect the tools you already use. You can skip and add these later.</p><div className="grid gap-4">[ { name: 'Stripe', category: 'Payments', desc: 'Process online donations and payments', icon: Heart }, { name: 'Twilio', category: 'SMS', desc: 'Send text messages for check-in and alerts', icon: Users }, { name: 'SendGrid', category: 'Email', desc: 'Send transactional and marketing emails', icon: Mail }, { name: 'QuickBooks', category: 'Accounting', desc: 'Sync financial data with your accounting', icon: Building2 }, { name: 'Google Workspace', category: 'Productivity', desc: 'SSO, Calendar, Drive integration', icon: Globe }, { name: 'Planning Center', category: 'Migration', desc: 'Import data from Planning Center', icon: Database } ].map((integration) => (<div key={integration.name} className="flex items-center justify-between p-4 border rounded-xl"><div className="flex items-center gap-4"><div className="p-2 rounded-lg bg-primary/10"><integration.icon className="h-5 w-5 text-primary" /></div><div><h3 className="font-medium">{integration.name}</h3><p className="text-sm text-muted-foreground">{integration.desc}</p></div></div><Button variant="outline" size="sm">Connect</Button></div>))}</div>)}
+
+          {currentStep === 5 && (<div className="text-center space-y-6"><div className="mx-auto w-20 h-20 rounded-full bg-green-100 flex items-center justify-center"><CheckCircle className="h-10 w-10 text-green-600" /></div><h2 className="text-2xl font-bold">You're All Set!</h2><p className="text-muted-foreground max-w-md mx-auto">{orgName || 'Your organization'} has been configured with {selectedPersona} mode and {enabledFeatures.length} features enabled.</p><div className="p-4 rounded-xl bg-muted/50 text-left max-w-md mx-auto space-y-2"><p className="font-medium">{orgName || 'Organization Name'}</p><p className="text-sm text-muted-foreground">Mode: {selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1)}</p><p className="text-sm text-muted-foreground">Features: {enabledFeatures.join(', ')}</p></div><Button size="lg" onClick={() => {}}><ArrowRight className="h-4 w-4 mr-2" />Go to Dashboard</Button></div>)}
+
+          <div className="flex justify-between pt-4 border-t"><Button variant="outline" onClick={goBack} disabled={isFirst}><ArrowLeft className="h-4 w-4 mr-2" />Back</Button><Button onClick={goNext} disabled={isLast}>{isLast ? 'Complete' : 'Next'}{!isLast && <ArrowRight className="h-4 w-4 ml-2" />}</Button></div>
+        </div>
+      </div>
+    </div>
+  );
+}

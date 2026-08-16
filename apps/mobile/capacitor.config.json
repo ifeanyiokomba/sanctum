@@ -1,0 +1,55 @@
+{
+  "appId": "com.platform.app",
+  "appName": "Platform",
+  "webDir": "../web/dist",
+  "server": {
+    "url": "https://app.platform.app",
+    "cleartext": true
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "scrollEnabled": true,
+    "limitsNavBarToVisibleBounds": true,
+    "preferredContentMode": "mobile"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#2563eb",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#2563eb"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "dark",
+      "resizeOnFullScreen": true
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#2563eb"
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "Network": {
+      "enabled": true
+    },
+    "Filesystem": {
+      "enabled": true
+    },
+    "Camera": {
+      "enabled": true
+    },
+    "Geolocation": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "outputs": []
+    },
+    "typecheck": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": ["coverage/**"],
+      "dependsOn": []
+    },
+    "db:generate": {
+      "outputs": ["src/db/generated/**"]
+    },
+    "db:migrate": {
+      "outputs": []
+    },
+    "sync:dev": {
+      "cache": false,
+      "persistent": true
+    }
+  },
+  "globalEnv": ["NODE_ENV", "DATABASE_URL", "CLERK_SECRET_KEY", "COUCHDB_URL"],
+  "globalDependencies": [".env*"]
+}
