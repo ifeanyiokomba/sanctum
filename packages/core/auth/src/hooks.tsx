@@ -30,7 +30,7 @@ export function usePermissions() {
     (resource: string, action: 'create' | 'read' | 'update' | 'delete' | 'manage') => {
       if (!user) return false;
       const permissions = (user.publicMetadata?.permissions as Permission[]) || 
-                          (organization?.publicMetadata?.permissions as Permission[]) || 
+                          ((organization?.publicMetadata as Record<string, unknown>)?.permissions as Permission[]) || 
                           [];
       return checkResourcePermission(permissions, resource, action);
     },
@@ -47,7 +47,7 @@ export function usePermissions() {
       isSuperAdmin,
       isOrgAdmin,
       userPermissions: (user?.publicMetadata?.permissions as Permission[]) || [],
-      orgPermissions: (organization?.publicMetadata?.permissions as Permission[]) || []
+      orgPermissions: ((organization?.publicMetadata as Record<string, unknown>)?.permissions as Permission[]) || []
     }),
     [can, canAll, canAny, hasResourceAccess, hasRole, isSuperAdmin, isOrgAdmin, user, organization]
   );
@@ -57,7 +57,7 @@ export function useRole() {
   const { user, organization, hasRole } = usePlatformAuth();
 
   const currentRole = useMemo(() => {
-    return (organization?.publicMetadata?.role as UserRole) || 
+    return ((organization?.publicMetadata as Record<string, unknown>)?.role as UserRole) || 
            (user?.publicMetadata?.role as UserRole) || 
            'org_member';
   }, [user, organization]);
@@ -191,7 +191,7 @@ export function useSettingsPermissions() {
   const { hasResourceAccess } = usePermissions();
   return {
     canRead: hasResourceAccess('settings', 'read'),
-    canUpdate: hasResourceAccess('settings', 'write')
+    canUpdate: hasResourceAccess('settings', 'update')
   };
 }
 

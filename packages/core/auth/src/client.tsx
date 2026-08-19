@@ -137,7 +137,6 @@ export interface SessionClaims {
 interface ClerkProviderProps {
   children: ReactNode;
   publishableKey: string;
-  frontendApi?: string;
   afterSignInUrl?: string;
   afterSignUpUrl?: string;
 }
@@ -145,20 +144,14 @@ interface ClerkProviderProps {
 export function PlatformClerkProvider({
   children,
   publishableKey,
-  frontendApi,
   afterSignInUrl = '/dashboard',
   afterSignUpUrl = '/onboarding'
-}: ClerkProviderProps) {
+}: Omit<ClerkProviderProps, 'frontendApi'>) {
   return (
     <ClerkProvider
       publishableKey={publishableKey}
-      frontendApi={frontendApi}
       afterSignInUrl={afterSignInUrl}
       afterSignUpUrl={afterSignUpUrl}
-      supportedRedirectUrls={{
-        signIn: afterSignInUrl,
-        signUp: afterSignUpUrl
-      }}
     >
       {children}
     </ClerkProvider>

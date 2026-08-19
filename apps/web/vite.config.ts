@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Platform',
-        short_name: 'Platform',
+        name: 'Sanctum',
+        short_name: 'Sanctum',
         description: 'Unified Operating Platform for Mission-Driven Organizations',
         theme_color: '#2563eb',
         background_color: '#ffffff',

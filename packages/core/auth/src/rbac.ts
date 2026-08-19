@@ -212,7 +212,7 @@ export function checkResourcePermission(
   resource: string,
   action: 'create' | 'read' | 'update' | 'delete' | 'manage'
 ): boolean {
-  const permissionMap: Record<string, Permission[]> = {
+  const permissionMap: Record<string, Record<string, Permission[]>> = {
     people: {
       create: ['people:write'],
       read: ['people:read'],

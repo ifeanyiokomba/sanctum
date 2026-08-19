@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import { BrowserRouter } from 'react-router-dom';
 import { TooltipProvider } from '@/core/ui';
 import { AuthProvider } from '@/core/hooks';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import App from './App';
 import './index.css';
 
@@ -30,21 +31,23 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ClerkProvider
-        publishableKey={clerkPubKey || ''}
-        afterSignInUrl="/dashboard"
-        afterSignUpUrl="/onboarding"
-      >
-        <AuthProvider>
-          <TooltipProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </ClerkProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ClerkProvider
+          publishableKey={clerkPubKey || ''}
+          afterSignInUrl="/dashboard"
+          afterSignUpUrl="/onboarding"
+        >
+          <AuthProvider>
+            <TooltipProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </TooltipProvider>
+          </AuthProvider>
+        </ClerkProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
 
