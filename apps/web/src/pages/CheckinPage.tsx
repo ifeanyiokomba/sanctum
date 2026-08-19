@@ -18,7 +18,7 @@ const mockEvents = [
 ];
 
 export function CheckinPage() {
-  const { } = useEventPermissions();
+  const { canManage } = useEventPermissions();
   const [activeTab, setActiveTab] = useState('kiosk');
   const [search, setSearch] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(mockEvents[0]);

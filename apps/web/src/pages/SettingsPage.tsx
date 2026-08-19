@@ -35,11 +35,27 @@ const complianceSettings = [
 ];
 
 export function SettingsPage() {
-  const { organization, isOrgAdmin, isSuperAdmin } = usePlatformAuth();
+  const { organization, isOrgAdmin, isSuperAdmin, hasPermission } = usePlatformAuth();
   const [activeTab, setActiveTab] = useState('general');
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => { setSaving(true); await new Promise(r => setTimeout(r, 1000)); setSaving(false); };
+
+  const canAccessSettings = isOrgAdmin() || hasPermission('settings:write' as any);
+
+  if (!canAccessSettings) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
+            <Shield className="h-8 w-8 text-destructive" />
+          </div>
+          <h2 className="text-xl font-bold">Access Denied</h2>
+          <p className="text-muted-foreground">You don't have permission to access organization settings.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in max-w-4xl">

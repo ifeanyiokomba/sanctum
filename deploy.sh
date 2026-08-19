@@ -154,7 +154,7 @@ main() {
     echo "  2. Set up SSL certificates (auto with Vercel/Netlify)"
     echo "  3. Configure Clerk webhooks"
     echo "  4. Set up monitoring (Sentry, UptimeRobot)"
-    echo "  4. Submit mobile apps to stores"
+    echo "  5. Submit mobile apps to stores"
 }
 
 main "$@"

@@ -1,6 +1,7 @@
 import { createClerkClient, ClerkClient } from '@clerk/backend';
 import { AuthUser, AuthOrganization, UserRole, Permission, SessionClaims } from './client';
 import { z } from 'zod';
+import crypto from 'crypto';
 
 // ============================================
 // Server-side Clerk Client
@@ -287,9 +288,21 @@ export function verifyWebhookSignature(
   signature: string,
   secret: string
 ): boolean {
-  // In production, use svix or similar
-  // This is a placeholder
-  return true;
+  if (!signature || !secret) return false;
+  try {
+    const [version, hash] = signature.split(',');
+    if (version !== 'v1') return false;
+    const expected = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+    return crypto.timingSafeEqual(
+      Buffer.from(hash || ''),
+      Buffer.from(expected)
+    );
+  } catch {
+    return false;
+  }
 }
 
 // ============================================
