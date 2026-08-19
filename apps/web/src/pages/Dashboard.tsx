@@ -1,5 +1,3 @@
-'use client';
-
 import { usePlatformAuth } from '@/core/hooks';
 import { usePeoplePermissions, useTransactionPermissions } from '@/core/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/ui';

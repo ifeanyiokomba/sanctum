@@ -1,10 +1,9 @@
-'use client';
 
 import { useState, useEffect } from 'react';
 import { useTransactionPermissions, useFundPermissions } from '@/core/hooks';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/ui';
 import { cn, formatCurrency, formatDate } from '@/core/utils';
-import { DollarSign, Heart, TrendingUp, Download, Plus, Filter, Search, CreditCard, Banknote, Recycle, Heart as HeartIcon, ArrowUpRight } from 'lucide-react';
+import { DollarSign, Heart, TrendingUp, Download, Plus, Filter, Search, CreditCard, Banknote, Recycle, ArrowUpRight } from 'lucide-react';
 import { usePlatformAuth } from '@/core/hooks';
 
 declare global {

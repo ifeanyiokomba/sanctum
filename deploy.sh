@@ -89,7 +89,7 @@ deploy_docker() {
     sleep 10
     
     # Check health
-    if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
+    if curl -f http://localhost:3000/ > /dev/null 2>&1; then
         echo "✓ Web app healthy"
     else
         echo "WARNING: Web app health check failed"

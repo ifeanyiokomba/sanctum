@@ -1,18 +1,18 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Platform",
+  "productName": "Sanctum",
   "version": "0.0.1",
-  "identifier": "com.platform.app",
+  "identifier": "app.sanctum.desktop",
   "build": {
-    "beforeDevCommand": "pnpm dev --filter=web",
+    "beforeDevCommand": "pnpm dev --filter=@platform/web",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "pnpm build --filter=web",
+    "beforeBuildCommand": "pnpm build --filter=@platform/web",
     "frontendDist": "../web/dist"
   },
   "app": {
     "windows": [
       {
-        "title": "Platform",
+        "title": "Sanctum — Organization Platform",
         "width": 1280,
         "height": 800,
         "minWidth": 800,
@@ -25,7 +25,7 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.com https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev wss://*.clerk.com https://api.paystack.co; frame-src https://*.clerk.com https://*.clerk.accounts.dev https://paystack.co;"
     },
     "withGlobalTauri": true
   },
@@ -52,7 +52,7 @@
       "entitlements": null,
       "exceptionDomain": "",
       "frameworks": [],
-      "providerShortName": "Platform",
+      "providerShortName": "Sanctum",
       "signingIdentity": null
     },
     "linux": {
@@ -79,7 +79,7 @@
     },
     "updater": {
       "active": true,
-      "endpoints": ["https://releases.platform.app/latest.json"],
+      "endpoints": ["https://releases.sanctum.app/latest.json"],
       "dialog": true,
       "pubkey": ""
     }

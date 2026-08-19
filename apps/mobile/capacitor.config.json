@@ -1,10 +1,10 @@
 {
-  "appId": "com.platform.app",
-  "appName": "Platform",
+  "appId": "app.sanctum.mobile",
+  "appName": "Sanctum",
   "webDir": "../web/dist",
   "server": {
-    "url": "https://app.platform.app",
-    "cleartext": true
+    "url": "https://app.sanctum.app",
+    "cleartext": false
   },
   "ios": {
     "contentInset": "automatic",
@@ -13,9 +13,9 @@
     "preferredContentMode": "mobile"
   },
   "android": {
-    "allowMixedContent": true,
+    "allowMixedContent": false,
     "captureInput": true,
-    "webContentsDebuggingEnabled": true
+    "webContentsDebuggingEnabled": false
   },
   "plugins": {
     "SplashScreen": {

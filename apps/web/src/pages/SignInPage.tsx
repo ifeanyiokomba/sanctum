@@ -1,4 +1,3 @@
-'use client';
 
 import { SignIn } from '@clerk/clerk-react';
 import { Building2 } from 'lucide-react';

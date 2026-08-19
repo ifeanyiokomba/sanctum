@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { UserRole, Permission, AuthUser, AuthOrganization } from './auth';
+import { createContext, useContext, useCallback, useMemo, ReactNode } from 'react';
+import { useAuth, useUser, useOrganization } from '@clerk/clerk-react';
+import { UserRole, Permission, AuthUser, AuthOrganization, getPermissionsForRole } from './auth';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -20,73 +21,76 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [organization, setOrganization] = useState<AuthOrganization | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+function mapClerkUser(clerkUser: any): AuthUser | null {
+  if (!clerkUser) return null;
+  return {
+    id: clerkUser.id,
+    email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
+    firstName: clerkUser.firstName,
+    lastName: clerkUser.lastName,
+    imageUrl: clerkUser.imageUrl,
+    publicMetadata: {
+      role: clerkUser.publicMetadata?.role as UserRole | undefined,
+      permissions: (clerkUser.publicMetadata?.permissions as Permission[]) || [],
+      orgId: clerkUser.publicMetadata?.orgId as string | undefined,
+      persona: clerkUser.publicMetadata?.persona as 'church' | 'school' | 'ngo' | 'sme' | undefined,
+    },
+    privateMetadata: clerkUser.privateMetadata || {},
+    unsafeMetadata: clerkUser.unsafeMetadata || {},
+    createdAt: clerkUser.createdAt,
+    updatedAt: clerkUser.updatedAt,
+  };
+}
 
-  // Simulate loading auth state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Mock user for development
-      setUser({
-        id: 'user_1',
-        email: 'admin@sanctum.app',
-        firstName: 'John',
-        lastName: 'Admin',
-        imageUrl: null,
-        publicMetadata: {
-          role: 'org_admin',
-          permissions: [
-            'people:read', 'people:write', 'people:delete', 'people:import', 'people:export',
-            'households:read', 'households:write', 'households:delete',
-            'transactions:read', 'transactions:write', 'transactions:delete', 'transactions:reconcile', 'transactions:export',
-            'funds:read', 'funds:write', 'funds:delete',
-            'events:read', 'events:write', 'events:delete', 'events:checkin', 'events:register',
-            'registrations:read', 'registrations:write', 'registrations:delete',
-            'messages:read', 'messages:write', 'messages:send', 'messages:templates',
-            'templates:read', 'templates:write', 'templates:delete',
-            'workflows:read', 'workflows:write', 'workflows:delete', 'workflows:execute',
-            'reports:read', 'reports:write', 'reports:delete', 'reports:schedule',
-            'settings:read', 'settings:write',
-            'integrations:read', 'integrations:write',
-            'users:invite', 'users:remove', 'users:manage_roles'
-          ],
-          orgId: 'org_1',
-          persona: 'church'
-        },
-        privateMetadata: {},
-        unsafeMetadata: {},
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      });
-      setOrganization({
-        id: 'org_1',
-        name: 'Grace Community Church',
-        slug: 'grace-community',
-        imageUrl: null,
-        publicMetadata: {
-          persona: 'church',
-          settings: {}
-        },
-        privateMetadata: {},
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        membersCount: 150,
-        pendingInvitationsCount: 0,
-        role: 'org_admin',
-        permissions: []
-      });
-      setIsLoaded(true);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+function mapClerkOrganization(clerkOrg: any): AuthOrganization | null {
+  if (!clerkOrg) return null;
+  return {
+    id: clerkOrg.id,
+    name: clerkOrg.name,
+    slug: clerkOrg.slug || '',
+    imageUrl: clerkOrg.imageUrl,
+    publicMetadata: {
+      persona: clerkOrg.publicMetadata?.persona as 'church' | 'school' | 'ngo' | 'sme' | undefined,
+      settings: clerkOrg.publicMetadata?.settings as Record<string, any> | undefined,
+    },
+    privateMetadata: clerkOrg.privateMetadata || {},
+    createdAt: clerkOrg.createdAt,
+    updatedAt: clerkOrg.updatedAt,
+    membersCount: clerkOrg.membersCount || 0,
+    pendingInvitationsCount: clerkOrg.pendingInvitationsCount || 0,
+    role: (clerkOrg.membership?.role as UserRole) || 'org_member',
+    permissions: (clerkOrg.publicMetadata?.permissions as Permission[]) || [],
+  };
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn, userId, orgId, orgRole, signOut: clerkSignOut } = useAuth();
+  const { user: clerkUser } = useUser();
+  const { organization: clerkOrg } = useOrganization();
+
+  const user = useMemo(() => mapClerkUser(clerkUser), [clerkUser]);
+  const organization = useMemo(() => mapClerkOrganization(clerkOrg), [clerkOrg]);
 
   const hasPermission = useCallback((permission: Permission) => {
     if (!user) return false;
     const perms = user.publicMetadata.permissions || [];
-    return perms.includes(permission);
-  }, [user]);
+    if (perms.includes(permission)) return true;
+
+    // Also check role-based permissions
+    const role = user.publicMetadata.role;
+    if (role) {
+      const rolePerms = getPermissionsForRole(role);
+      if (rolePerms.includes(permission)) return true;
+    }
+
+    // Check organization-level permissions
+    if (organization) {
+      const orgPerms = organization.permissions || [];
+      if (orgPerms.includes(permission)) return true;
+    }
+
+    return false;
+  }, [user, organization]);
 
   const hasRole = useCallback((role: UserRole | UserRole[]) => {
     if (!user) return false;
@@ -103,18 +107,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [organization, user]);
 
   const signOut = useCallback(() => {
-    setUser(null);
-    setOrganization(null);
-  }, []);
+    clerkSignOut();
+  }, [clerkSignOut]);
 
   const value = useMemo(() => ({
     user,
     organization,
     isLoaded,
-    isSignedIn: !!user,
-    userId: user?.id || null,
-    orgId: organization?.id || null,
-    orgRole: user?.publicMetadata?.role,
+    isSignedIn: !!isSignedIn,
+    userId: userId || null,
+    orgId: orgId || null,
+    orgRole: orgRole as UserRole | undefined,
     orgSlug: organization?.slug || null,
     hasPermission,
     hasRole,
@@ -122,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isOrgAdmin,
     getOrgPersona,
     signOut
-  }), [user, organization, isLoaded, hasPermission, hasRole, isSuperAdmin, isOrgAdmin, getOrgPersona, signOut]);
+  }), [user, organization, isLoaded, isSignedIn, userId, orgId, orgRole, hasPermission, hasRole, isSuperAdmin, isOrgAdmin, getOrgPersona, signOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -176,7 +179,7 @@ function checkResourcePermission(permissions: Permission[], resource: string, ac
     integrations: { create: ['integrations:write'], read: ['integrations:read'], update: ['integrations:write'], delete: ['integrations:write'], manage: ['integrations:write'] },
     users: { create: ['users:invite'], read: ['people:read'], update: ['users:manage_roles'], delete: ['users:remove'], manage: ['users:invite', 'users:remove', 'users:manage_roles'] }
   };
-  const required = permissionMap[resource]?.[action] as Permission[] || [];
+  const required = (permissionMap[resource]?.[action] || []) as Permission[];
   return required.some((p: Permission) => permissions.includes(p));
 }
 

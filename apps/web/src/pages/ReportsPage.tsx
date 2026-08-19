@@ -1,4 +1,3 @@
-'use client';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Input } from '@/core/ui';

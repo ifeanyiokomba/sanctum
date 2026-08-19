@@ -1,4 +1,3 @@
-'use client';
 
 import { usePlatformAuth } from '@/core/hooks';
 import { Bell, Search, Sun, Moon, ChevronDown, Globe, Settings, Heart, UserCheck, Calendar } from 'lucide-react';

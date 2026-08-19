@@ -11,6 +11,10 @@ build/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.backup*
+.env.development
+.env.staging
 
 # IDE
 .idea/
@@ -40,3 +44,13 @@ coverage/
 
 # TypeScript cache
 *.tsbuildinfo
+
+# Backup files
+*.bak
+
+# Generated dev service worker
+dev-dist/
+
+# Scripts (not needed in production repo)
+*.ps1
+*.bat

@@ -1,20 +1,32 @@
+import { useAuth } from '@clerk/clerk-react';
+
 const API_BASE = '/api';
 
 class ApiClient {
   private baseUrl: string;
+  private getTokenFn: (() => Promise<string | null>) | null = null;
 
   constructor(baseUrl: string = API_BASE) {
     this.baseUrl = baseUrl;
   }
 
+  setTokenGetter(getToken: () => Promise<string | null>) {
+    this.getTokenFn = getToken;
+  }
+
   private async getHeaders(): Promise<HeadersInit> {
-    // TODO: implement getToken from Clerk
-    const token = "";
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
-    if (token) {
-      (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    if (this.getTokenFn) {
+      try {
+        const token = await this.getTokenFn();
+        if (token) {
+          (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+        }
+      } catch {
+        // Token retrieval failed - request will proceed without auth
+      }
     }
     return headers;
   }
@@ -58,11 +70,11 @@ class ApiClient {
     return this.request(`/people/${id}`);
   }
 
-  async createPerson(data: any) {
+  async createPerson(data: Record<string, unknown>) {
     return this.request('/people', { method: 'POST', body: JSON.stringify(data) });
   }
 
-  async updatePerson(id: string, data: any) {
+  async updatePerson(id: string, data: Record<string, unknown>) {
     return this.request(`/people/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
   }
 
@@ -78,7 +90,7 @@ class ApiClient {
     return this.request(`/households?${searchParams}`);
   }
 
-  async createHousehold(data: any) {
+  async createHousehold(data: Record<string, unknown>) {
     return this.request('/households', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -93,7 +105,7 @@ class ApiClient {
     return this.request(`/transactions?${searchParams}`);
   }
 
-  async createTransaction(data: any) {
+  async createTransaction(data: Record<string, unknown>) {
     return this.request('/transactions', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -106,7 +118,7 @@ class ApiClient {
     return this.request('/funds');
   }
 
-  async createFund(data: any) {
+  async createFund(data: Record<string, unknown>) {
     return this.request('/funds', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -124,7 +136,7 @@ class ApiClient {
     return this.request(`/events/${id}`);
   }
 
-  async createEvent(data: any) {
+  async createEvent(data: Record<string, unknown>) {
     return this.request('/events', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -133,7 +145,7 @@ class ApiClient {
     return this.request(`/events/${eventId}/registrations`);
   }
 
-  async createRegistration(eventId: string, data: any) {
+  async createRegistration(eventId: string, data: Record<string, unknown>) {
     return this.request(`/events/${eventId}/registrations`, { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -153,7 +165,7 @@ class ApiClient {
     return this.request(`/shifts?${searchParams}`);
   }
 
-  async createShift(data: any) {
+  async createShift(data: Record<string, unknown>) {
     return this.request('/shifts', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -165,7 +177,7 @@ class ApiClient {
   }
 
   // Messages
-  async sendMessage(data: any) {
+  async sendMessage(data: Record<string, unknown>) {
     return this.request('/messages', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -173,7 +185,7 @@ class ApiClient {
     return this.request('/templates');
   }
 
-  async createTemplate(data: any) {
+  async createTemplate(data: Record<string, unknown>) {
     return this.request('/templates', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -182,7 +194,7 @@ class ApiClient {
     return this.request('/reports');
   }
 
-  async generateReport(id: string, params?: any) {
+  async generateReport(id: string, params?: Record<string, unknown>) {
     return this.request(`/reports/${id}/generate`, { method: 'POST', body: JSON.stringify(params) });
   }
 
@@ -191,7 +203,7 @@ class ApiClient {
     return this.request('/settings');
   }
 
-  async updateSettings(data: any) {
+  async updateSettings(data: Record<string, unknown>) {
     return this.request('/settings', { method: 'PATCH', body: JSON.stringify(data) });
   }
 
@@ -201,11 +213,16 @@ class ApiClient {
     formData.append('file', file);
     formData.append('type', type);
 
-    // TODO: implement getToken from Clerk
-    const token = "";
     const headers: HeadersInit = {};
-    if (token) {
-      (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    if (this.getTokenFn) {
+      try {
+        const token = await this.getTokenFn();
+        if (token) {
+          (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+        }
+      } catch {
+        // Token retrieval failed
+      }
     }
     const response = await fetch(`${this.baseUrl}/files`, {
       method: 'POST',
@@ -223,13 +240,23 @@ class ApiClient {
 
 export const api = new ApiClient();
 
+// Hook to initialize the API client with Clerk token
+export function useApiClient() {
+  const { getToken } = useAuth();
+
+  // Set the token getter on the api client
+  api.setTokenGetter(getToken);
+
+  return api;
+}
+
 // React Query hooks
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-export function usePeople(params?: any) {
+export function usePeople(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: ['people', params],
-    queryFn: () => api.getPeople(params),
+    queryFn: () => api.getPeople(params as { page?: number; limit?: number; search?: string; status?: string }),
   });
 }
 
@@ -244,7 +271,7 @@ export function usePerson(id: string) {
 export function useCreatePerson() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.createPerson,
+    mutationFn: (data: Record<string, unknown>) => api.createPerson(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['people'] });
     },
@@ -254,7 +281,7 @@ export function useCreatePerson() {
 export function useUpdatePerson() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => api.updatePerson(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => api.updatePerson(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['people'] });
       queryClient.invalidateQueries({ queryKey: ['person', id] });
@@ -262,17 +289,17 @@ export function useUpdatePerson() {
   });
 }
 
-export function useTransactions(params?: any) {
+export function useTransactions(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: ['transactions', params],
-    queryFn: () => api.getTransactions(params),
+    queryFn: () => api.getTransactions(params as { page?: number; limit?: number; fundId?: string; startDate?: string; endDate?: string }),
   });
 }
 
 export function useCreateTransaction() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.createTransaction,
+    mutationFn: (data: Record<string, unknown>) => api.createTransaction(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['funds'] });
@@ -287,10 +314,10 @@ export function useFunds() {
   });
 }
 
-export function useEvents(params?: any) {
+export function useEvents(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: ['events', params],
-    queryFn: () => api.getEvents(params),
+    queryFn: () => api.getEvents(params as { page?: number; limit?: number; startDate?: string; endDate?: string }),
   });
 }
 
@@ -305,7 +332,7 @@ export function useEvent(id: string) {
 export function useCreateEvent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.createEvent,
+    mutationFn: (data: Record<string, unknown>) => api.createEvent(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
     },
@@ -323,7 +350,7 @@ export function useRegistrations(eventId: string) {
 export function useCreateRegistration() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ eventId, data }: { eventId: string; data: any }) => api.createRegistration(eventId, data),
+    mutationFn: ({ eventId, data }: { eventId: string; data: Record<string, unknown> }) => api.createRegistration(eventId, data),
     onSuccess: (_, { eventId }) => {
       queryClient.invalidateQueries({ queryKey: ['registrations', eventId] });
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
@@ -338,10 +365,10 @@ export function useCheckIn() {
   });
 }
 
-export function useShifts(params?: any) {
+export function useShifts(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: ['shifts', params],
-    queryFn: () => api.getShifts(params),
+    queryFn: () => api.getShifts(params as { eventId?: string; date?: string }),
   });
 }
 

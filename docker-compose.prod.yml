@@ -6,8 +6,8 @@ services:
     image: couchdb:3
     container_name: sanctum-couchdb
     environment:
-      COUCHDB_USER: admin
-      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD:-changeme}
+      COUCHDB_USER: ${COUCHDB_USER:-admin}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD:?Set COUCHDB_PASSWORD in environment}
     volumes:
       - couchdb_data:/opt/couchdb/data
     ports:
@@ -20,6 +20,8 @@ services:
       retries: 3
     networks:
       - sanctum-network
+    security_opt:
+      - no-new-privileges:true
 
   # Sync Gateway (for mobile/offline sync)
   sync-gateway:
@@ -38,6 +40,8 @@ services:
     restart: unless-stopped
     networks:
       - sanctum-network
+    security_opt:
+      - no-new-privileges:true
 
   # Web App (served via nginx)
   web:
@@ -46,7 +50,7 @@ services:
       dockerfile: apps/web/Dockerfile
     container_name: sanctum-web
     ports:
-      - "3000:80"
+      - "3000:8080"
     depends_on:
       - couchdb
     restart: unless-stopped
@@ -54,7 +58,9 @@ services:
       - sanctum-network
     environment:
       - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
-      - VITE_APP_URL=${VITE_APP_URL}
+      - VITE_APP_URL=${VITE_APP_URL:-https://app.sanctum.app}
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   couchdb_data:

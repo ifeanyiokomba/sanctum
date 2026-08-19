@@ -8,6 +8,15 @@ import { AuthProvider } from '@/core/hooks';
 import App from './App';
 import './index.css';
 
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!clerkPubKey) {
+  console.error(
+    'Missing VITE_CLERK_PUBLISHABLE_KEY environment variable. '
+    + 'Please set it in your .env.local file or in the Keys/API keys tab.'
+  );
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,7 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ClerkProvider
-        publishableKey=""
+        publishableKey={clerkPubKey || ''}
         afterSignInUrl="/dashboard"
         afterSignUpUrl="/onboarding"
       >

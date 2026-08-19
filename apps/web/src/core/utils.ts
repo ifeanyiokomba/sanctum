@@ -13,6 +13,10 @@ export function formatCurrency(cents: number, currency = 'USD'): string {
   }).format(cents / 100);
 }
 
+export function formatNumber(num: number): string {
+  return new Intl.NumberFormat('en-US').format(num);
+}
+
 export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   return d.toLocaleDateString('en-US', {
